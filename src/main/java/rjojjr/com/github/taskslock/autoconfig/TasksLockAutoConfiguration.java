@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ComponentScan({
         "rjojjr.com.github.taskslock",
+        "rjojjr.com.github.taskslock.autoconfig"
 })
 public class TasksLockAutoConfiguration {
 }
