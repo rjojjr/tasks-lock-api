@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 
 @Entity
-@Table(name = "tasks_locks")
+@Table(name = "task_locks")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
