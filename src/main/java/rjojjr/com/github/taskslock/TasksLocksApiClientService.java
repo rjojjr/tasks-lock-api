@@ -27,6 +27,7 @@ public class TasksLocksApiClientService implements TasksLockService {
     private Set<TaskLock> taskLocks = new HashSet<>();
     private final Object releaseLock = new Object();
 
+    @Override
     public TaskLock acquireLock(String taskName, String contextId, boolean waitForLock) {
         var response = restTemplate.getForObject(String.format("%s/tasks-lock/api/v1/acquire?taskName=%s&contextId=%s&waitForLock=%s", apiProtoAndHost, taskName, contextId, waitForLock ? "true" : "false"), TasksLockApiResponse.class);
         if(!response.getIsLockAcquired()){
@@ -39,6 +40,7 @@ public class TasksLocksApiClientService implements TasksLockService {
         return taskLock;
     }
 
+    @Override
     public void releaseLock(String taskName) {
         restTemplate.getForObject(String.format("%s/tasks-lock/api/v1/acquire?taskName=%s", apiProtoAndHost, taskName), TasksLockApiResponse.class);
         synchronized (releaseLock) {
@@ -47,10 +49,12 @@ public class TasksLocksApiClientService implements TasksLockService {
         }
     }
 
+    @Override
     public TaskLock acquireLock(String taskName, String hostName, String contextId, boolean waitForLock){
         return acquireLock(taskName, contextId, waitForLock);
     }
 
+    @Override
     public void onShutdown() {
         log.info("Shutting down TasksLockService and releasing task-locks");
         synchronized (releaseLock) {

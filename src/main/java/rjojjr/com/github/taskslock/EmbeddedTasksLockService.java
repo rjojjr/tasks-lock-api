@@ -27,10 +27,12 @@ public class EmbeddedTasksLockService implements TasksLockService {
     private Set<TaskLock> taskLocks = new HashSet<>();
     private final Object releaseLock = new Object();
 
+    @Override
     public TaskLock acquireLock(String taskName, String contextId, boolean waitForLock) {
         return acquireLock(taskName, HostUtil.getRemoteHost(), contextId, waitForLock);
     }
 
+    @Override
     public TaskLock acquireLock(String taskName, String hostName, String contextId, boolean waitForLock) {
         log.debug("Acquiring lock for task {}", taskName);
         synchronized (releaseLock) {
@@ -64,6 +66,7 @@ public class EmbeddedTasksLockService implements TasksLockService {
         return null;
     }
 
+    @Override
     public void releaseLock(String taskName) {
         log.debug("Releasing lock for task {}", taskName);
         synchronized (releaseLock) {
@@ -80,6 +83,7 @@ public class EmbeddedTasksLockService implements TasksLockService {
         }
     }
 
+    @Override
     public void onShutdown() {
         log.info("Shutting down TasksLockService and releasing task-locks");
         synchronized (releaseLock) {
