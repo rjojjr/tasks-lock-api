@@ -27,6 +27,8 @@ public class EmbeddedTasksLockService implements TasksLockService {
     private static final long RETRY_INTERVAL = 50;
 
     private final TaskLockEntityRepository taskLockEntityRepository;
+
+    // TODO - Fetch lock status from here before querying the db
     private Set<TaskLock> taskLocks = new HashSet<>();
     private final Object releaseLock = new Object();
 
@@ -40,6 +42,7 @@ public class EmbeddedTasksLockService implements TasksLockService {
         try {
             log.debug("Acquiring lock for task {}", taskName);
             synchronized (releaseLock) {
+                // TODO - Synchronize at this level across module instances(maybe some kind of db table lock?)
                 var lockedAt = new Date();
                 var entity = taskLockEntityRepository.findById(taskName).orElseGet(() -> new TaskLockEntity(taskName, false, hostName, contextId, new Date()));
                 try {
