@@ -12,7 +12,7 @@ import rjojjr.com.github.taskslock.exception.TasksLockShutdownFailure;
 import rjojjr.com.github.taskslock.models.TaskLock;
 import rjojjr.com.github.taskslock.util.HostUtil;
 import rjojjr.com.github.taskslock.util.ThreadUtil;
-
+import org.hibernate.exception.DataException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -42,23 +42,26 @@ public class EmbeddedTasksLockService implements TasksLockService {
             synchronized (releaseLock) {
                 var lockedAt = new Date();
                 var entity = taskLockEntityRepository.findById(taskName).orElseGet(() -> new TaskLockEntity(taskName, false, hostName, contextId, new Date()));
-                if (!entity.getIsLocked()) {
-                    entity.setIsLocked(true);
-                    entity.setLockedAt(lockedAt);
-                    entity.setIsLockedByHost(hostName);
-                    entity.setContextId(contextId);
-
-                    taskLockEntityRepository.save(entity);
-                    var taskLock = new TaskLock(
-                            taskName,
-                            contextId,
-                            true,
-                            lockedAt,
-                            () -> releaseLock(taskName)
-                    );
-                    taskLocks.add(taskLock);
-                    log.debug("Task lock acquired for task {}", taskName);
-                    return taskLock;
+                try {
+                    if (!entity.getIsLocked()) {
+                        entity.setIsLocked(true);
+                        entity.setLockedAt(lockedAt);
+                        entity.setIsLockedByHost(hostName);
+                        entity.setContextId(contextId);
+                        taskLockEntityRepository.save(entity);
+                        var taskLock = new TaskLock(
+                                taskName,
+                                contextId,
+                                true,
+                                lockedAt,
+                                () -> releaseLock(taskName)
+                        );
+                        taskLocks.add(taskLock);
+                        log.debug("Task lock acquired for task {}", taskName);
+                        return taskLock;
+                    }
+                } catch (DataException e) {
+                    log.debug("Task lock not acquired for task {} because this worker lost in a race condition", taskName);
                 }
             }
 
