@@ -48,6 +48,7 @@ public class EmbeddedTasksLockService implements TasksLockService {
                 var taskLock = new TaskLock(
                         taskName,
                         contextId,
+                        true,
                         lockedAt,
                         () -> releaseLock(taskName)
                 );
@@ -63,7 +64,7 @@ public class EmbeddedTasksLockService implements TasksLockService {
             return acquireLock(taskName, hostName, contextId, waitForLock);
         }
         log.debug("Task lock not acquired for task {}", taskName);
-        return null;
+        return new TaskLock(taskName, contextId, false, null, () -> {});
     }
 
     @Override

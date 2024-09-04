@@ -12,6 +12,7 @@ import java.util.Date;
 public class TaskLock {
     private String taskName;
     private String contextId;
+    private Boolean isLocked;
     private Date lockedAt;
     private Runnable release;
 }

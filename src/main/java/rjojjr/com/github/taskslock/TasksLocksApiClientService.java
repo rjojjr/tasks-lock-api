@@ -31,9 +31,9 @@ public class TasksLocksApiClientService implements TasksLockService {
     public TaskLock acquireLock(String taskName, String contextId, boolean waitForLock) {
         var response = restTemplate.getForObject(String.format("%s/tasks-lock/api/v1/acquire?taskName=%s&contextId=%s&waitForLock=%s", apiProtoAndHost, taskName, contextId, waitForLock ? "true" : "false"), TasksLockApiResponse.class);
         if(!response.getIsLockAcquired()){
-            return null;
+            return new TaskLock(taskName, contextId, false, null, () -> {});
         }
-        var taskLock = new TaskLock(taskName, contextId, response.getLockedAt(), () -> releaseLock(taskName));
+        var taskLock = new TaskLock(taskName, contextId, true, response.getLockedAt(), () -> releaseLock(taskName));
         synchronized (releaseLock) {
             taskLocks.add(taskLock);
         }

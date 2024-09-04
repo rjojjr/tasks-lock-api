@@ -23,7 +23,7 @@ public class TasksLockApiController {
     @GetMapping("/acquire")
     public TasksLockApiResponse acquire(@RequestParam String taskName, @RequestParam String contextId, @RequestParam(defaultValue = "true") Boolean waitForLock, HttpServletRequest request) {
         var lock = tasksLockService.acquireLock(taskName, request.getRemoteHost(), contextId, waitForLock);
-        return new TasksLockApiResponse(taskName, lock != null, lock != null ? lock.getLockedAt() : null);
+        return new TasksLockApiResponse(taskName, lock.getIsLocked(), lock.getLockedAt());
     }
 
     @GetMapping("/release")
