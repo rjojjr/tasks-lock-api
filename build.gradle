@@ -9,7 +9,8 @@ plugins {
 def build = '2'
 
 group = 'rjojjr.com.github'
-version = "1.0.0.$build-SNAPSHOT"
+//version = "1.0.0.$build-SNAPSHOT"
+version = "1.0.0-RELEASE"
 sourceCompatibility = '17'
 
 
