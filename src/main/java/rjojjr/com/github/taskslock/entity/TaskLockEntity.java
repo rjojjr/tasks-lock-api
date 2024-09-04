@@ -23,10 +23,10 @@ public class TaskLockEntity {
     @Column(nullable = false)
     private Boolean isLocked;
 
-    @Column(columnDefinition = "VARCHAR(256)", nullable = false)
+    @Column(columnDefinition = "VARCHAR(256)")
     private String isLockedByHost;
 
-    @Column(columnDefinition = "VARCHAR(256)", nullable = false)
+    @Column(columnDefinition = "VARCHAR(256)")
     private String contextId;
 
     private Date lockedAt;
