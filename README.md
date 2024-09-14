@@ -131,3 +131,18 @@ simply run the `bootJar` gradle task:
 ```shell
 ./gradlew bootJar
 ```
+
+## Feature Requests 
+
+To submit a feature request or a bug, please feel free to open up a
+new GitHub Issue for this project. 
+
+### Roadmap
+
+Right now I am tracking future [here](TODO.md), so you can get a general
+idea of where this project is headed in that document ATM.
+
+## Contributing
+
+If you would like to contribute, please feel free to submit a pull request,
+and I will do my best to get it approved for you.

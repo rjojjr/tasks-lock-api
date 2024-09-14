@@ -18,3 +18,4 @@ Branch names and commit messages should start with `TODO-{todo number in list}`.
    3. javascript
    4. rust
    5. dotnet
+7. Add ability to hold/configure multiple locks for a task
