@@ -2,7 +2,7 @@
 
 The 'TasksLock API' is a Springboot module/system meant to help synchronize 
 work in a HA environment. It is useful for enforcing a limit on 
-jobs that should only be run once at the same time.
+jobs that should only be run once at any given time.
 
 ## Module Modes
 
@@ -14,11 +14,13 @@ The 'TasksLock API' Springboot module has three modes:
 
 ### Embedded Mode
 
-Embedded mode is meant for cases when you want your target Springboot
-application to handle all the database configuration.
+Embedded mode is meant for use cases when you want each of your target Springboot
+applications/containers to manage the DB and locking implementation.
+This mode is the default, and is the easiest(but least efficient) way
+to integrate "TaskLocks" into your applications. 
 
 To run this module in Embedded Mode, all you have to do is import
-this module as dependency to your target module.
+this module as dependency to each of your target consumer modules.
 
 ### API Mode
 
@@ -26,8 +28,14 @@ This module can be ran as a standalone API incase you want to centralize/segrega
 this functionality.
 
 To run this module in API Mode, you must either import this module as a dependency
-of another Springboot app, or stand the Java Artifact up on its own, and set the `tasks-lock.api.enabled` env. var./configuration 
-property to `true`.
+of another Springboot app, or stand the Java Artifact up on its 
+own(`java -jar tasks-lock-api-VERSION.jar`), and set the `tasks-lock.api.enabled` env. var./configuration 
+property to `true`. You also must set the database application properties listed in
+the related section below.
+
+**IMPORTANT NOTE** - When using the TasksLock API in an API/Client configuration, 
+you should ALWAYS use the same version of this module for BOTH the API and each
+client consumer application.
 
 #### Docker API
 
@@ -36,7 +44,7 @@ The container can be run by setting the proper SQL DB environment variables.
 
 Additionally, you can pull the latest docker image from [Docker Hub](https://hub.docker.com):
 
-`rjojjr91/tasks-lock-api:LATEST`
+`rjojjr91/tasks-lock-api:LATEST` OR `"rjojjr91/tasks-lock-api:$TARGET_VERSION"`
 
 #### Required SQL Database Environment Variables
 
@@ -61,7 +69,7 @@ instance of this module in API Mode that you want to consume from.
 To run this module in API Client Mode, you must import this module as a dependency
 of your target Springboot app, and set the `tasks-lock.client.enabled` env. var./configuration
 property to `true`. You must also set the `tasks-lock.client.api-host` property
-to the protocol and hostname of the API Mode module instance(`http://localhost:8080`).
+to the protocol, hostname and port of the target API Mode module instance(`http://localhost:8080`).
 
 ## Consuming Tasks Locks
 
