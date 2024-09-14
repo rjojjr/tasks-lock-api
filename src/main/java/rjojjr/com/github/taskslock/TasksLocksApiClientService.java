@@ -11,8 +11,6 @@ import rjojjr.com.github.taskslock.exception.ReleaseLockFailureException;
 import rjojjr.com.github.taskslock.models.TaskLock;
 import rjojjr.com.github.taskslock.models.TasksLockApiResponse;
 
-import java.util.stream.Collectors;
-
 @ConditionalOnProperty(name = "tasks-lock.client.enabled", havingValue = "true")
 @Service
 @Slf4j
@@ -39,9 +37,7 @@ public class TasksLocksApiClientService extends DestroyableTasksLockService {
                 return new TaskLock(taskName, contextId, false, null, () -> {});
             }
             var taskLock = new TaskLock(taskName, contextId, true, response.getLockedAt(), () -> releaseLock(taskName));
-            synchronized (releaseLock) {
-                taskLocks.add(taskLock);
-            }
+            cacheLock(taskLock);
             log.debug("acquired lock for task {} contextId: {}", taskName, contextId);
             return taskLock;
         } catch (Exception e) {
@@ -53,14 +49,13 @@ public class TasksLocksApiClientService extends DestroyableTasksLockService {
     @Override
     public String releaseLock(String taskName) {
         try {
+
             log.debug("attempting to release lock for task {}", taskName);
             var response = restTemplate.getForObject(String.format("%s/tasks-lock/api/v1/release?taskName=%s", apiProtoAndHost, taskName), TasksLockApiResponse.class);
-            synchronized (releaseLock) {
-                taskLocks = taskLocks.stream().filter(taskLock -> !taskLock.getTaskName().equals(taskName))
-                        .collect(Collectors.toSet());
-            }
+
             assert response != null;
             var contextId = response.getContextId();
+            removeLock(response.getTaskName(), contextId);
             log.debug("released lock for task {}, contextId: {}", taskName, contextId);
             return contextId;
         } catch (Exception e) {

@@ -1,28 +1,21 @@
 package rjojjr.com.github.taskslock;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import rjojjr.com.github.taskslock.exception.TasksLockShutdownFailure;
 import rjojjr.com.github.taskslock.models.TaskLock;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @Slf4j
-@Getter
-@NoArgsConstructor
-public abstract class DestroyableTasksLockService implements TasksLockService {
+abstract class DestroyableTasksLockService extends StatefulTasksLockService {
 
-    // TODO - Fetch lock status from here before querying the db
-    protected Set<TaskLock> taskLocks = new HashSet<>();
-    protected final Object releaseLock = new Object();
+    public DestroyableTasksLockService() {
+        super();
+    }
 
     @Override
     public void onDestroy() {
         log.info("Shutting down TasksLockService and releasing task-locks");
         try {
-            synchronized (releaseLock) {
+            synchronized (dbLock) {
                 for(TaskLock lock : taskLocks) {
                     lock.getRelease().run();
                 }

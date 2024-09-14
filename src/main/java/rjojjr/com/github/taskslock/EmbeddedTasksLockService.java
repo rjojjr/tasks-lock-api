@@ -13,9 +13,6 @@ import rjojjr.com.github.taskslock.util.HostUtil;
 import rjojjr.com.github.taskslock.util.ThreadUtil;
 import org.hibernate.exception.DataException;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @ConditionalOnProperty(name = "tasks-lock.client.enabled", havingValue = "false", matchIfMissing = true)
 @Service
@@ -40,7 +37,7 @@ public class EmbeddedTasksLockService extends DestroyableTasksLockService {
     public TaskLock acquireLock(String taskName, String hostName, String contextId, boolean waitForLock) {
         try {
             log.debug("attempting to acquire lock for task {}, waiting for lock: {} contextId: {}", taskName, waitForLock, contextId);
-            synchronized (releaseLock) {
+            synchronized (dbLock) {
                 // TODO - Synchronize at this level across module instances(maybe some kind of db table lock?)
                 var lockedAt = new Date();
                 var entity = taskLockEntityRepository.findById(taskName).orElseGet(() -> new TaskLockEntity(taskName, false, hostName, contextId, new Date()));
@@ -58,7 +55,7 @@ public class EmbeddedTasksLockService extends DestroyableTasksLockService {
                                 lockedAt,
                                 () -> releaseLock(taskName)
                         );
-                        taskLocks.add(taskLock);
+                        cacheLock(taskLock);
                         log.debug("acquired lock for task {} contextId: {}", taskName, contextId);
                         return taskLock;
                     }
@@ -84,9 +81,10 @@ public class EmbeddedTasksLockService extends DestroyableTasksLockService {
     public String releaseLock(String taskName) {
         log.debug("attempting to release lock for task {}", taskName);
         try {
-            synchronized (releaseLock) {
+            String contextId;
+            synchronized (dbLock) {
                 var entity = taskLockEntityRepository.findById(taskName).orElseGet(() -> new TaskLockEntity(taskName, false, null, null, new Date()));
-                var contextId = entity.getContextId();
+                contextId = entity.getContextId();
                 if (entity.getIsLocked()) {
                     entity.setIsLocked(false);
                     entity.setLockedAt(null);
@@ -94,11 +92,11 @@ public class EmbeddedTasksLockService extends DestroyableTasksLockService {
                     entity.setContextId(null);
 
                     taskLockEntityRepository.save(entity);
-                    taskLocks = taskLocks.stream().filter(taskLock -> !taskLock.getTaskName().equals(taskName)).collect(Collectors.toSet());
                 }
-                log.debug("released lock for task {}, contextId: {}", taskName, contextId);
-                return contextId;
             }
+            removeLock(taskName, contextId);
+            log.debug("released lock for task {}, contextId: {}", taskName, contextId);
+            return contextId;
         } catch (Exception e) {
             log.error("error releasing lock for task {}: {}", taskName, e.getMessage());
             throw new ReleaseLockFailureException(taskName, null, e);
