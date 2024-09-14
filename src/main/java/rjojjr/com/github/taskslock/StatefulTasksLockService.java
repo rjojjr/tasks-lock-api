@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 abstract class StatefulTasksLockService implements TasksLockService {
 
-    // TODO - Fetch lock status from here before querying the db
     protected Set<TaskLock> taskLocks = new HashSet<>();
     protected final Object dbLock = new Object();
     private final Object cacheLock = new Object();
