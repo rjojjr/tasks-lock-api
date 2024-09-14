@@ -5,6 +5,7 @@
 FROM gradle:7.6.4-jdk17 AS builder
 COPY . /project
 WORKDIR /project
+RUN echo 'removing build' && (rm -rf build || echo 'no previous build exists')
 RUN gradle bootJar
 
 FROM openjdk:17-jdk-slim-bullseye
