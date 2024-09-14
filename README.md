@@ -34,6 +34,10 @@ property to `true`.
 You can run the Tasks Lock API as a docker container by building it with the included [Dockerfile](Dockerfile). 
 The container can be run by setting the proper SQL DB environment variables.
 
+Additionally, you can pull the latest docker image from [Docker Hub](https://hub.docker.com):
+
+`rjojjr91/tasks-lock-api:LATEST`
+
 #### Required SQL Database Environment Variables
 
 When this module is run in API mode, the following environment variables/application properties
@@ -103,8 +107,9 @@ public class SomeComponent {
         var taskLock = this.tasksLockService.acquireLock("someUniqueTaskName", "someContextId", true);
         // No need to check `isLocked` because this method will not finish unless it either
         // acquires the lock or throws a RuntimeException for some unexpected reason
+        
         // Lock acquired, do something and release lock
-            ...
+        ...
         taskLock.getRelease().run();
     }
 }

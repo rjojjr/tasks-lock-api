@@ -22,13 +22,18 @@ public class TasksLockApiController {
 
     @GetMapping("/acquire")
     public TasksLockApiResponse acquire(@RequestParam String taskName, @RequestParam String contextId, @RequestParam(defaultValue = "true") Boolean waitForLock, HttpServletRequest request) {
+        log.info("received acquire-lock request for task {} contextId: {}", taskName, contextId);
         var lock = tasksLockService.acquireLock(taskName, request.getRemoteHost(), contextId, waitForLock);
-        return new TasksLockApiResponse(taskName, lock.getIsLocked(), lock.getLockedAt());
+        var status = lock.getIsLocked() ? "lock acquired" : "lock not acquired";
+        log.info("{} for request for task {} contextId {}", status, taskName, contextId);
+        return new TasksLockApiResponse(taskName, lock.getContextId(), status, lock.getIsLocked(), lock.getLockedAt());
     }
 
     @GetMapping("/release")
     public TasksLockApiResponse release(@RequestParam String taskName) {
-        tasksLockService.releaseLock(taskName);
-        return new TasksLockApiResponse(taskName, false, null);
+        log.info("received release-lock request for task {}", taskName);
+        var contextId = tasksLockService.releaseLock(taskName);
+        log.info("released lock request for task {} contextId: {}", taskName, contextId);
+        return new TasksLockApiResponse(taskName, contextId, "lock released", false, null);
     }
 }
