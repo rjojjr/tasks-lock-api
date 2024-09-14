@@ -44,21 +44,23 @@ public class TasksLocksApiClientService implements TasksLockService {
             return taskLock;
         } catch (Exception e) {
             log.error("Error acquiring lock from TasksLock API: {}", e.getMessage());
-            throw new AcquireLockFailureException(taskName, e);
+            throw new AcquireLockFailureException(taskName, contextId, e);
         }
     }
 
     @Override
-    public void releaseLock(String taskName) {
+    public String releaseLock(String taskName) {
         try {
-            restTemplate.getForObject(String.format("%s/tasks-lock/api/v1/release?taskName=%s", apiProtoAndHost, taskName), TasksLockApiResponse.class);
+            var response = restTemplate.getForObject(String.format("%s/tasks-lock/api/v1/release?taskName=%s", apiProtoAndHost, taskName), TasksLockApiResponse.class);
             synchronized (releaseLock) {
                 taskLocks = taskLocks.stream().filter(taskLock -> !taskLock.getTaskName().equals(taskName))
                         .collect(Collectors.toSet());
             }
+            assert response != null;
+            return response.getContextId();
         } catch (Exception e) {
             log.error("Error releasing lock from TasksLock API: {}", e.getMessage());
-            throw new ReleaseLockFailureException(taskName, e);
+            throw new ReleaseLockFailureException(taskName, null, e);
         }
     }
 

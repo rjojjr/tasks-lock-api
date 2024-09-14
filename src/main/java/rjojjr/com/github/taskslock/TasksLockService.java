@@ -18,7 +18,7 @@ public interface TasksLockService {
      * Release lock for task
      * @param taskName
      */
-    void releaseLock(String taskName);
+    String releaseLock(String taskName);
 
     /**
      * Acquire lock with embedded impl.

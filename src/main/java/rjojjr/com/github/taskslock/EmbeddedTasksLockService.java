@@ -77,16 +77,17 @@ public class EmbeddedTasksLockService implements TasksLockService {
             return new TaskLock(taskName, contextId, false, null, () -> {});
         } catch (Exception e) {
             log.error("Error acquiring lock for task {}: {}", taskName, e.getMessage());
-            throw new AcquireLockFailureException(taskName, e);
+            throw new AcquireLockFailureException(taskName, contextId, e);
         }
     }
 
     @Override
-    public void releaseLock(String taskName) {
+    public String releaseLock(String taskName) {
         log.debug("Releasing lock for task {}", taskName);
         try {
             synchronized (releaseLock) {
                 var entity = taskLockEntityRepository.findById(taskName).orElseGet(() -> new TaskLockEntity(taskName, false, null, null, new Date()));
+                var contextId = entity.getContextId();
                 if (entity.getIsLocked()) {
                     entity.setIsLocked(false);
                     entity.setLockedAt(null);
@@ -96,10 +97,11 @@ public class EmbeddedTasksLockService implements TasksLockService {
                     taskLockEntityRepository.save(entity);
                     taskLocks = taskLocks.stream().filter(taskLock -> !taskLock.getTaskName().equals(taskName)).collect(Collectors.toSet());
                 }
+                return contextId;
             }
         } catch (Exception e) {
             log.error("Error releasing lock for task {}: {}", taskName, e.getMessage());
-            throw new ReleaseLockFailureException(taskName, e);
+            throw new ReleaseLockFailureException(taskName, null, e);
         }
     }
 

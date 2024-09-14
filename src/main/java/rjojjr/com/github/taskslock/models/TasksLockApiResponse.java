@@ -11,6 +11,8 @@ import java.util.Date;
 @Data
 public class TasksLockApiResponse {
     private String taskName;
+    private String contextId;
+    private String message;
     private Boolean isLockAcquired;
     private Date lockedAt;
 }
