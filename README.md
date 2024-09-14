@@ -104,7 +104,7 @@ public class SomeComponent {
         // No need to check `isLocked` because this method will not finish unless it either
         // acquires the lock or throws a RuntimeException for some unexpected reason
         // Lock acquired, do something and release lock
-            ...
+        ...
         taskLock.getRelease().run();
     }
 }
