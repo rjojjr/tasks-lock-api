@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
-import rjojjr.com.github.taskslock.entity.TaskLockEntity;
 import rjojjr.com.github.taskslock.entity.TaskLockEntityRepository;
 import rjojjr.com.github.taskslock.exception.AcquireLockFailureException;
 import rjojjr.com.github.taskslock.exception.ReleaseLockFailureException;
@@ -14,7 +13,6 @@ import rjojjr.com.github.taskslock.models.TaskLock;
 import rjojjr.com.github.taskslock.util.HostUtil;
 import rjojjr.com.github.taskslock.util.ThreadUtil;
 import org.hibernate.exception.DataException;
-import java.util.Date;
 
 @ConditionalOnProperty(name = "tasks-lock.client.enabled", havingValue = "false", matchIfMissing = true)
 @Service
@@ -68,21 +66,13 @@ public class EmbeddedTasksLockService extends DestroyableTasksLockService {
     }
 
     @Override
+    @Transactional
     public String releaseLock(String taskName) {
         log.debug("attempting to release lock for task {}", taskName);
         try {
             String contextId;
             synchronized (dbLock) {
-                var entity = taskLockEntityRepository.findById(taskName).orElseGet(() -> new TaskLockEntity(taskName, false, null, null, new Date()));
-                contextId = entity.getContextId();
-                if (entity.getIsLocked()) {
-                    entity.setIsLocked(false);
-                    entity.setLockedAt(null);
-                    entity.setIsLockedByHost(null);
-                    entity.setContextId(null);
-
-                    taskLockEntityRepository.save(entity);
-                }
+                contextId = taskLockEntityRepository.releaseLock(taskName);
             }
             removeLock(taskName, contextId);
             log.debug("released lock for task {}, contextId: {}", taskName, contextId);

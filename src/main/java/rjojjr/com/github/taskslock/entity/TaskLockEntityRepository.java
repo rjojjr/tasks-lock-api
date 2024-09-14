@@ -16,7 +16,7 @@ public interface TaskLockEntityRepository extends JpaRepository<TaskLockEntity, 
 
     /**
      * Attempts to acquire lock & locks 'task_locks' table while doing so.
-     * @param taskName unique task name.
+     * @param taskName unique task identifier.
      * @param hostName hostname of requesting service/container.
      * @param contextId a tracing ID provided by request.
      * @param releaseLock Consumer function that releases lock.
@@ -50,5 +50,25 @@ public interface TaskLockEntityRepository extends JpaRepository<TaskLockEntity, 
                 lockedAt,
                 () -> {}
         );
+    }
+
+    /**
+     * Removes lock for task if it exists
+     * @param taskName unique task identifier
+     * @return contextId
+     */
+    @Lock(LockModeType.OPTIMISTIC)
+    default String releaseLock(String taskName){
+        var entity = findById(taskName).orElseGet(() -> new TaskLockEntity(taskName, false, null, null, new Date()));
+        var contextId = entity.getContextId();
+        if (entity.getIsLocked()) {
+            entity.setIsLocked(false);
+            entity.setLockedAt(null);
+            entity.setIsLockedByHost(null);
+            entity.setContextId(null);
+
+             save(entity);
+        }
+        return contextId;
     }
 }
