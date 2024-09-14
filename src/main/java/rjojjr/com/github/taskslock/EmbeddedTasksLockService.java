@@ -3,6 +3,7 @@ package rjojjr.com.github.taskslock;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import rjojjr.com.github.taskslock.entity.TaskLockEntity;
@@ -20,7 +21,8 @@ import java.util.Date;
 @Slf4j
 public class EmbeddedTasksLockService extends DestroyableTasksLockService {
 
-    private static final long RETRY_INTERVAL = 50;
+    @Value("${tasks-lock.retry-interval.ms:50}")
+    private long retryInterval;
 
     private final TaskLockEntityRepository taskLockEntityRepository;
 
@@ -53,8 +55,8 @@ public class EmbeddedTasksLockService extends DestroyableTasksLockService {
             }
 
             if (waitForLock) {
-                log.debug("task lock not acquired for task {}, retrying in {}ms contextId: {}", taskName, RETRY_INTERVAL, contextId);
-                ThreadUtil.sleep(RETRY_INTERVAL);
+                log.debug("task lock not acquired for task {}, retrying in {}ms contextId: {}", taskName, retryInterval, contextId);
+                ThreadUtil.sleep(retryInterval);
                 return acquireLock(taskName, hostName, contextId, true);
             }
             log.debug("did not acquire lock for task {} contextId: {}", taskName, contextId);
