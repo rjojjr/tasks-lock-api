@@ -6,11 +6,11 @@ plugins {
     id 'java-library'
 }
 
-def build = '11'
+def build = '14'
 
 group = 'rjojjr.com.github'
-//version = "1.1.1.$build-SNAPSHOT"
-version = "1.1.1-RELEASE"
+//version = "1.1.2.$build-SNAPSHOT"
+version = "1.1.2-RELEASE"
 sourceCompatibility = '17'
 
 
