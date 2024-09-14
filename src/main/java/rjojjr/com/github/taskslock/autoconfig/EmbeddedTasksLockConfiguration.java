@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import rjojjr.com.github.taskslock.EmbeddedTasksLockService;
 import rjojjr.com.github.taskslock.TasksLockService;
-import rjojjr.com.github.taskslock.entity.TaskLockEntityRepository;
+import rjojjr.com.github.taskslock.entity.TaskLockRepository;
 
 @ConditionalOnProperty(name = "tasks-lock.client.enabled", havingValue = "false", matchIfMissing = true)
 @Configuration
@@ -21,10 +21,10 @@ import rjojjr.com.github.taskslock.entity.TaskLockEntityRepository;
 public class EmbeddedTasksLockConfiguration {
 
     @Autowired
-    private TaskLockEntityRepository taskLockEntityRepository;
+    private TaskLockRepository taskLockRepository;
 
     @Bean
     public TasksLockService tasksLockService() {
-        return new EmbeddedTasksLockService(taskLockEntityRepository);
+        return new EmbeddedTasksLockService(taskLockRepository);
     }
 }

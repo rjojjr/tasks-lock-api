@@ -23,9 +23,10 @@ public interface TaskLockEntityRepository extends JpaRepository<TaskLockEntity, 
      * @param cacheLock Consumer function that adds TaskLock object to cache.
      * @return resulting TaskLock object.
      */
-    @Lock(LockModeType.OPTIMISTIC)
+    @Lock(LockModeType.PESSIMISTIC_READ)
     default TaskLock tryToAcquireLock(String taskName, String hostName, String contextId, Consumer<String> releaseLock, Consumer<TaskLock> cacheLock){
         var lockedAt = new Date();
+
         var entity = findById(taskName).orElseGet(() -> new TaskLockEntity(taskName, false, hostName, contextId, new Date()));
         if (!entity.getIsLocked()) {
             entity.setIsLocked(true);
@@ -43,6 +44,7 @@ public interface TaskLockEntityRepository extends JpaRepository<TaskLockEntity, 
             cacheLock.accept(taskLock);
             return taskLock;
         }
+        flush();
         return new TaskLock(
                 taskName,
                 contextId,
@@ -57,7 +59,7 @@ public interface TaskLockEntityRepository extends JpaRepository<TaskLockEntity, 
      * @param taskName unique task identifier
      * @return contextId
      */
-    @Lock(LockModeType.OPTIMISTIC)
+    @Lock(LockModeType.PESSIMISTIC_READ)
     default String releaseLock(String taskName){
         var entity = findById(taskName).orElseGet(() -> new TaskLockEntity(taskName, false, null, null, new Date()));
         var contextId = entity.getContextId();
@@ -69,6 +71,7 @@ public interface TaskLockEntityRepository extends JpaRepository<TaskLockEntity, 
 
              save(entity);
         }
+        flush();
         return contextId;
     }
 }
