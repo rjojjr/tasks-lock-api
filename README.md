@@ -102,6 +102,7 @@ public class SomeComponent {
         if(taskLock.getIsLocked()) {
             // Lock acquired, do something and release lock
             ...
+            // Release lock
             taskLock.getRelease().run();
         } else {
             // Did not acquire lock, do something else(?)
@@ -118,6 +119,7 @@ public class SomeComponent {
         
         // Lock acquired, do something and release lock
         ...
+        // Release lock
         taskLock.getRelease().run();
     }
 }
