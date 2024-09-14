@@ -1,5 +1,6 @@
 package rjojjr.com.github.taskslock;
 
+import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import rjojjr.com.github.taskslock.exception.TasksLockShutdownFailure;
 import rjojjr.com.github.taskslock.models.TaskLock;
@@ -11,6 +12,7 @@ abstract class DestroyableTasksLockService extends StatefulTasksLockService {
         super();
     }
 
+    @PreDestroy
     @Override
     public void onDestroy() {
         log.info("Shutting down TasksLockService and releasing task-locks");
