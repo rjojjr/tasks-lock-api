@@ -139,7 +139,7 @@ new GitHub Issue for this project.
 
 ### Roadmap
 
-Right now I am tracking future [here](TODO.md), so you can get a general
+Right now I am tracking feature work [here](TODO.md) for now, so you can get a general
 idea of where this project is headed in that document ATM.
 
 ## Contributing
