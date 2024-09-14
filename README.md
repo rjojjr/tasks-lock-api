@@ -34,6 +34,10 @@ property to `true`.
 You can run the Tasks Lock API as a docker container by building it with the included [Dockerfile](Dockerfile). 
 The container can be run by setting the proper SQL DB environment variables.
 
+Additionally, you can pull the latest docker image from [Docker Hub](https://hub.docker.com):
+
+`rjojjr91/tasks-lock-api:LATEST`
+
 #### Required SQL Database Environment Variables
 
 When this module is run in API mode, the following environment variables/application properties
