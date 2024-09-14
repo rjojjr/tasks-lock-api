@@ -11,3 +11,4 @@ Branch names and commit messages should start with `TODO-{todo number in list}`.
 2. Add annotation for locking methods instead of methods
 3. Add client-only build variant that doesn't contain Spring Data dependencies
 4. Add timeout argument when waiting for a lock
+5. Add migration runner for API and embedded mode
