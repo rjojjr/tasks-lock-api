@@ -1,5 +1,6 @@
 package rjojjr.com.github.taskslock;
 
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -29,33 +30,20 @@ public class EmbeddedTasksLockService extends DestroyableTasksLockService {
     }
 
     @Override
+    @Transactional
     public TaskLock acquireLock(String taskName, String contextId, boolean waitForLock) {
         return acquireLock(taskName, HostUtil.getRemoteHost(), contextId, waitForLock);
     }
 
     @Override
+    @Transactional
     public TaskLock acquireLock(String taskName, String hostName, String contextId, boolean waitForLock) {
         try {
             log.debug("attempting to acquire lock for task {}, waiting for lock: {} contextId: {}", taskName, waitForLock, contextId);
             synchronized (dbLock) {
-                // TODO - Synchronize at this level across module instances(maybe some kind of db table lock?)
-                var lockedAt = new Date();
-                var entity = taskLockEntityRepository.findById(taskName).orElseGet(() -> new TaskLockEntity(taskName, false, hostName, contextId, new Date()));
                 try {
-                    if (!entity.getIsLocked()) {
-                        entity.setIsLocked(true);
-                        entity.setLockedAt(lockedAt);
-                        entity.setIsLockedByHost(hostName);
-                        entity.setContextId(contextId);
-                        taskLockEntityRepository.save(entity);
-                        var taskLock = new TaskLock(
-                                taskName,
-                                contextId,
-                                true,
-                                lockedAt,
-                                () -> releaseLock(taskName)
-                        );
-                        cacheLock(taskLock);
+                    var taskLock = taskLockEntityRepository.acquireLock(taskName, hostName, contextId, this::releaseLock, this::cacheLock);
+                    if (taskLock != null) {
                         log.debug("acquired lock for task {} contextId: {}", taskName, contextId);
                         return taskLock;
                     }
