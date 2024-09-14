@@ -42,8 +42,8 @@ public class EmbeddedTasksLockService extends DestroyableTasksLockService {
             log.debug("attempting to acquire lock for task {}, waiting for lock: {} contextId: {}", taskName, waitForLock, contextId);
             synchronized (dbLock) {
                 try {
-                    var taskLock = taskLockEntityRepository.acquireLock(taskName, hostName, contextId, this::releaseLock, this::cacheLock);
-                    if (taskLock != null) {
+                    var taskLock = taskLockEntityRepository.tryToAcquireLock(taskName, hostName, contextId, this::releaseLock, this::cacheLock);
+                    if (taskLock.getIsLocked()) {
                         log.debug("acquired lock for task {} contextId: {}", taskName, contextId);
                         return taskLock;
                     }

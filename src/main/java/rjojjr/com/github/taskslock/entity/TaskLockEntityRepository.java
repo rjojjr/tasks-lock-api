@@ -1,8 +1,6 @@
 package rjojjr.com.github.taskslock.entity;
 
 import jakarta.persistence.LockModeType;
-import lombok.extern.slf4j.Slf4j;
-import org.hibernate.exception.DataException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -11,14 +9,22 @@ import rjojjr.com.github.taskslock.models.TaskLock;
 
 import java.util.Date;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 @ConditionalOnProperty(name = "tasks-lock.client.enabled", havingValue = "false", matchIfMissing = true)
 @Repository
 public interface TaskLockEntityRepository extends JpaRepository<TaskLockEntity, String> {
 
+    /**
+     * Attempts to acquire lock & locks 'task_locks' table while doing so.
+     * @param taskName unique task name.
+     * @param hostName hostname of requesting service/container.
+     * @param contextId a tracing ID provided by request.
+     * @param releaseLock Consumer function that releases lock.
+     * @param cacheLock Consumer function that adds TaskLock object to cache.
+     * @return resulting TaskLock object.
+     */
     @Lock(LockModeType.OPTIMISTIC)
-    default TaskLock acquireLock(String taskName, String hostName, String contextId, Consumer<String> releaseLock, Consumer<TaskLock> cacheLock){
+    default TaskLock tryToAcquireLock(String taskName, String hostName, String contextId, Consumer<String> releaseLock, Consumer<TaskLock> cacheLock){
         var lockedAt = new Date();
         var entity = findById(taskName).orElseGet(() -> new TaskLockEntity(taskName, false, hostName, contextId, new Date()));
         if (!entity.getIsLocked()) {
@@ -37,6 +43,12 @@ public interface TaskLockEntityRepository extends JpaRepository<TaskLockEntity, 
             cacheLock.accept(taskLock);
             return taskLock;
         }
-        return null;
+        return new TaskLock(
+                taskName,
+                contextId,
+                false,
+                lockedAt,
+                () -> {}
+        );
     }
 }
