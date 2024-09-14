@@ -70,7 +70,7 @@ public class TasksLocksApiClientService implements TasksLockService {
     }
 
     @Override
-    public void onShutdown() {
+    public void onDestroy() {
         log.info("Shutting down TasksLockService and releasing task-locks");
         try {
             synchronized (releaseLock) {
