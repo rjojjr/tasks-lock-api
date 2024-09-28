@@ -13,7 +13,7 @@ class TaskLock:
 
 
 class TasksLockService:
-
+    # TODO - 6IA - release all locks on shutdown
     def __init__(self,
                  protocol: str | None = None,
                  host: str | None = None,
