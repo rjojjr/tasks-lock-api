@@ -3,6 +3,7 @@ import requests
 import json
 from models.task_lock import TaskLock
 
+version = '1.0.0'
 
 class TasksLockService:
     """Acquires/releases locks from the TasksLockAPI."""
@@ -16,6 +17,7 @@ class TasksLockService:
         self._host = host if not host is None else host_utils.get_host()
         self._port = port if not port is None else host_utils.get_port()
         self._url = f'{self._protocol}://{self._host}:{str(self._port)}'
+        self.version = version
 
     def acquire_lock(self, task_name: str, context_id: str, wait_for_lock: bool) -> TaskLock:
         """Acquires lock from the TasksLockAPI."""
