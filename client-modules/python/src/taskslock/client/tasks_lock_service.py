@@ -1,6 +1,7 @@
 from utils import host_utils
 import requests
 import json
+from models.task_lock import TaskLock
 
 
 class TasksLockService:
