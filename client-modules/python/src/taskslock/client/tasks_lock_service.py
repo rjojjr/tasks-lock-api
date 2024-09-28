@@ -4,7 +4,7 @@ import json
 from models.task_lock import TaskLock
 from logging import getLogger
 
-version = '1.0.0'
+version = '1.0.1'
 
 class TasksLockService:
     """Acquires/releases locks from the TasksLockAPI."""
