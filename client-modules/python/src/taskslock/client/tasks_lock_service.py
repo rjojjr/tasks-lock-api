@@ -17,12 +17,13 @@ class TasksLockService:
         self._port = port if not port is None else host_utils.get_port()
         self._url = f'{self._protocol}://{self._host}:{str(self._port)}'
 
-    def acquire_lock(self, task_name: str, context_id: str, wait_for_lock: bool):
+    def acquire_lock(self, task_name: str, context_id: str, wait_for_lock: bool) -> TaskLock:
         """Acquires lock from the TasksLockAPI."""
         response = requests.get(f'{self._url}/tasks-lock/api/v1/acquire?taskName={task_name}&contextId={context_id}&waitForLock={"true" if wait_for_lock else "false"}')
         if response.status_code < 300:
             body = json.loads(response.content)
             return TaskLock(body, lambda: self.release_lock(task_name))
+        return TaskLock({'taskName': task_name, 'contextId': context_id, 'isLockAcquired': False}, lambda : print(f'Cannot release lock for {task_name}, lock not acquired contextId: {context_id}'))
 
     def release_lock(self, task_name: str) -> bool:
         """Releases lock from the TasksLockAPI."""
