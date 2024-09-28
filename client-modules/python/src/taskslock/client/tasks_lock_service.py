@@ -5,6 +5,8 @@ from models.task_lock import TaskLock
 
 
 class TasksLockService:
+    """Acquires/releases locks from the TasksLockAPI."""
+
     # TODO - 6IA - release all locks on shutdown
     def __init__(self,
                  protocol: str | None = None,
@@ -16,12 +18,14 @@ class TasksLockService:
         self._url = f'{self._protocol}://{self._host}:{str(self._port)}'
 
     def acquire_lock(self, task_name: str, context_id: str, wait_for_lock: bool):
+        """Acquires lock from the TasksLockAPI."""
         response = requests.get(f'{self._url}/tasks-lock/api/v1/acquire?taskName={task_name}&contextId={context_id}&waitForLock={"true" if wait_for_lock else "false"}')
         if response.status_code < 300:
             body = json.loads(response.content)
             return TaskLock(body, lambda: self.release_lock(task_name))
 
     def release_lock(self, task_name: str) -> bool:
+        """Releases lock from the TasksLockAPI."""
         response = requests.get(f'{self._url}/tasks-lock/api/v1/release?taskName={task_name}')
         if response.status_code < 300:
             return True
