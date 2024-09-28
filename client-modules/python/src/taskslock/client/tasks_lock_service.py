@@ -14,7 +14,7 @@ class TasksLockService:
                  protocol: str | None = None,
                  host: str | None = None,
                  port: int | None = None):
-        self._protocol = protocol if not protocol is None else host_utils.get_host()
+        self._protocol = protocol if not protocol is None else host_utils.get_protocol()
         self._host = host if not host is None else host_utils.get_host()
         self._port = port if not port is None else host_utils.get_port()
         self._url = f'{self._protocol}://{self._host}:{str(self._port)}'
