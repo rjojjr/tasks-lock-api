@@ -39,7 +39,12 @@ class TasksLockService:
 
     def release_lock(self, task_name: str) -> bool:
         """Releases lock from the TasksLockAPI."""
+        self.logger.debug(f"releasing lock for task {task_name}")
+
         response = requests.get(f'{self._url}/tasks-lock/api/v1/release?taskName={task_name}')
         if response.status_code < 300:
+            self.logger.debug(f"released lock for task {task_name}")
             return True
+
+        self.logger.warning(f"did not release lock for task {task_name}, received status {response.status_code}")
         return False
