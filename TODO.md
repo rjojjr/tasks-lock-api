@@ -13,9 +13,11 @@ Branch names and commit messages should start with `TODO-{todo number in list}`.
 4. Add timeout argument when waiting for a lock
 5. Add migration runner for API and embedded mode
 6. Add client libraries for other languages:
-   1. python
+   1. ~~python~~
+      1. Add release all locks on shutdown
    2. go
    3. javascript
    4. rust
    5. dotnet
 7. Add ability to hold/configure multiple locks for a task
+8. Add authentication for TasksLockAPI
