@@ -25,3 +25,5 @@ Branch names and commit messages should start with `TODO-{todo number in list}`.
 8. Add authentication for TasksLockAPI
    1. Basic auth token
    2. JWT 
+9. Upgrade to gradle 8
+10. Host spring package in a public maven repository
