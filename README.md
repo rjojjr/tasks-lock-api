@@ -4,6 +4,9 @@ The 'TasksLock API' is a Springboot module/system meant to help synchronize
 work in a HA environment. It is useful for enforcing a limit on 
 jobs that should only be run once at any given time.
 
+The TasksLock API currently includes clients for Java/Springboot and Python.
+More client packages in other languages are soon to come.
+
 ## Module Modes
 
 The 'TasksLock API' Springboot module has three modes:
@@ -58,8 +61,8 @@ must be set with the appropriate values for the SQL datastore instance you inten
 
 ##### SQL Schema Generation
 
-The API will generate and execute the SQL schema needed for the app to operate,
-there is nothing you need to do in this regard.
+The API will automatically generate and execute the SQL schema needed for 
+the app to operate in the configured database, there is nothing you need to do in this regard.
 
 ### API Client Mode
 
@@ -72,6 +75,8 @@ property to `true`. You must also set the `tasks-lock.client.api-host` property
 to the protocol, hostname and port of the target API Mode module instance(`http://localhost:8080`).
 
 ## Consuming Tasks Locks
+
+### Java/Springboot
 
 To consume the TasksLock API, you simply need to inject the `rjojjr.com.github.taskslock.TasksLockService`
 component into the target class and call the appropriate methods.
@@ -98,6 +103,8 @@ public class SomeComponent {
     
     // Don't wait for lock
     public void doSomethingSynchronouslyWithoutWaitingForLock(){
+        // taskName should be unique per task, not unique for individual instances of the same task
+        // contextId can be any string(provided by you) that can be used to track each individual instance of a task
         var taskLock = this.tasksLockService.acquireLock("someUniqueTaskName", "someContextId", false);
         if(taskLock.getIsLocked()) {
             // Lock acquired, do something and release lock
@@ -127,8 +134,8 @@ public class SomeComponent {
 
 ### Python Client
 
-This repository includes a python client [here](client-modules/python). You 
-can learn more about using the python client in 
+This repository includes a python client(located [here](client-modules/python)). 
+You can learn more about using the python client in 
 [its README](client-modules/python/README.md).
 
 ## Building the Module
@@ -142,8 +149,9 @@ simply run the `bootJar` gradle task:
 
 ## Feature Requests 
 
-To submit a feature request or a bug, please feel free to open up a
-new GitHub Issue for this project. 
+To submit a feature request or a bug, please feel free to create a
+new GitHub Issue for this project or start a conversation in our 
+Github Discussions space. 
 
 ### Roadmap
 
