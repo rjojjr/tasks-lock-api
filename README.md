@@ -149,8 +149,3 @@ new GitHub Issue for this project.
 
 Right now I am tracking feature work [here](TODO.md) for now, so you can get a general
 idea of where this project is headed in that document ATM.
-
-## Contributing
-
-If you would like to contribute, please feel free to submit a pull request,
-and I will do my best to get it approved for you.
