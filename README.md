@@ -125,6 +125,12 @@ public class SomeComponent {
 }
 ```
 
+### Python Client
+
+This repository includes a python client [here](client-modules/python). You 
+can learn more about using the python client in 
+[its README](client-modules/python/README.md).
+
 ## Building the Module
 
 To build the module artifact with the included Gradle Wrapper,
