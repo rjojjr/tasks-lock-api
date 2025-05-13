@@ -3,6 +3,7 @@ import requests
 import json
 from models.task_lock import TaskLock
 from logging import getLogger
+import signal
 
 version = '1.0.1'
 
@@ -20,6 +21,8 @@ class TasksLockService:
         self._url = f'{self._protocol}://{self._host}:{str(self._port)}'
         self.version = version
         self.logger = getLogger(__name__)
+        self._locks = []
+        self._set_sigterm_handler()
 
     def acquire_lock(self, task_name: str, context_id: str, wait_for_lock: bool) -> TaskLock:
         """Acquires lock from the TasksLockAPI."""
@@ -31,6 +34,7 @@ class TasksLockService:
             body = json.loads(response.content)
             task_lock = TaskLock(body, lambda: self.release_lock(task_name))
         if task_lock.is_locked:
+            self._locks.append(task_lock)
             self.logger.debug(f"acquired lock for task {task_name} contextId: {context_id}")
         else:
             self.logger.warning(f"did not acquire lock for task {task_name} contextId: {context_id}")
@@ -43,8 +47,20 @@ class TasksLockService:
 
         response = requests.get(f'{self._url}/tasks-lock/api/v1/release?taskName={task_name}')
         if response.status_code < 300:
+            for lock in self._locks:
+                if lock.task_name == task_name:
+                    self._locks.remove(lock)
+                    break
             self.logger.debug(f"released lock for task {task_name}")
             return True
 
         self.logger.warning(f"did not release lock for task {task_name}, received status {response.status_code}")
         return False
+
+    def release_all_locks(self):
+        """Releases all locks from the TasksLockAPI."""
+        for lock in self._locks:
+            lock.release()
+
+    def _set_sigterm_handler(self):
+        signal.signal(signal.SIGTERM, self.release_all_locks())
