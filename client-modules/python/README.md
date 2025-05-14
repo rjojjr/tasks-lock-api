@@ -19,7 +19,7 @@ To use the client:
 
 ```python
 # Import the client
-from taskslock.client.task_lock_service import TasksLockService
+from taskslock.client import TasksLockService
 
 # Construct a TasksLockService instance
 tasks_lock_service = TasksLockService()
