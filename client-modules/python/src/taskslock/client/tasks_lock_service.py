@@ -63,4 +63,9 @@ class TasksLockService:
             lock.release()
 
     def _set_sigterm_handler(self):
-        signal.signal(signal.SIGTERM, self.release_all_locks())
+        original = signal.getsignal(signal.SIGTERM)
+        def sig(code, frame):
+            self.logger.warning(f"received signal {str(signal.Signals(code).name)}")
+            self.release_all_locks()
+            original(code, frame)
+        signal.signal(signal.SIGTERM, sig)
