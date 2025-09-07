@@ -3,6 +3,8 @@ package rjojjr.com.github.taskslock;
 import jakarta.annotation.PreDestroy;
 import rjojjr.com.github.taskslock.models.TaskLock;
 
+import java.util.List;
+
 public interface TasksLockService {
 
     /**
@@ -36,6 +38,13 @@ public interface TasksLockService {
      * @return TaskLock object
      */
     TaskLock acquireLock(String taskName, String hostName, String contextId, boolean waitForLock);
+
+    /**
+     * List locks for all tasks
+     * @param contextId a tracing identifier provided by the consumer
+     * @return List<TaskLock> locks
+     */
+    List<TaskLock> getLocks(String contextId);
 
     /**
      * Release all locks & cleanup on shutdown

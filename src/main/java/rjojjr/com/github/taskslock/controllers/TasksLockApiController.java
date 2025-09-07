@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 import rjojjr.com.github.taskslock.TasksLockService;
 import rjojjr.com.github.taskslock.models.TasksLockApiResponse;
 
+import java.util.List;
+import java.util.UUID;
+
 @ConditionalOnProperty(name = "tasks-lock.api.enabled", havingValue = "true")
 @RestController
 @RequestMapping("/tasks-lock/api/v1")
@@ -39,9 +42,21 @@ public class TasksLockApiController {
 
     @GetMapping("/release/all")
     public TasksLockApiResponse releaseAll() {
-        log.info("received release-all-lock request for all tasks");
+        log.info("received release-all-locks request for all tasks");
         var contextId = tasksLockService.releaseLocks();
         log.info("released all locks request for all tasks contextId: {}", contextId);
         return new TasksLockApiResponse("all", contextId, "locks released", false, null);
+    }
+
+    @GetMapping
+    public List<TasksLockApiResponse> listAll() {
+        log.info("received release-list-all-locks request for all tasks");
+        var contextId = UUID.randomUUID().toString();
+        var locks = tasksLockService.getLocks(contextId)
+                .stream()
+                .map(lock -> new TasksLockApiResponse(lock.getTaskName(), lock.getContextId(), "locks", lock.getIsLocked(), lock.getLockedAt()))
+                .toList();
+        log.info("get all locks request for all tasks contextId: {}", contextId);
+        return locks;
     }
 }
