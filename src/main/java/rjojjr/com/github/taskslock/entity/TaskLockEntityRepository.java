@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import rjojjr.com.github.taskslock.models.TaskLock;
 
 import java.util.Date;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 @ConditionalOnProperty(name = "tasks-lock.client.enabled", havingValue = "false", matchIfMissing = true)
@@ -71,6 +72,28 @@ public interface TaskLockEntityRepository extends JpaRepository<TaskLockEntity, 
 
              save(entity);
         }
+        flush();
+        return contextId;
+    }
+
+    /**
+     * Removes lock for all tasks
+     * @return contextId
+     */
+    @Lock(LockModeType.PESSIMISTIC_READ)
+    default String releaseLocks(){
+        var contextId = UUID.randomUUID().toString();
+        findAll().forEach(entity -> {
+            if (entity.getIsLocked()) {
+                entity.setIsLocked(false);
+                entity.setLockedAt(null);
+                entity.setIsLockedByHost(null);
+                entity.setContextId(null);
+
+                save(entity);
+            }
+        });
+
         flush();
         return contextId;
     }

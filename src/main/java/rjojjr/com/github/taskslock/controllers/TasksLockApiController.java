@@ -36,4 +36,12 @@ public class TasksLockApiController {
         log.info("released lock request for task {} contextId: {}", taskName, contextId);
         return new TasksLockApiResponse(taskName, contextId, "lock released", false, null);
     }
+
+    @GetMapping("/release/all")
+    public TasksLockApiResponse releaseAll() {
+        log.info("received release-all-lock request for all tasks");
+        var contextId = tasksLockService.releaseLocks();
+        log.info("released all locks request for all tasks contextId: {}", contextId);
+        return new TasksLockApiResponse("all", contextId, "locks released", false, null);
+    }
 }

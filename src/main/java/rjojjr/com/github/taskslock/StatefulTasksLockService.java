@@ -29,4 +29,11 @@ abstract class StatefulTasksLockService implements TasksLockService {
             taskLocks = taskLocks.stream().filter(taskLock -> !taskLock.getTaskName().equals(taskName)).collect(Collectors.toSet());
         }
     }
+
+    protected void removeLocks(String contextId) {
+        synchronized (cacheLock) {
+            log.debug("removing locks for all tasks from cache contextId: {}", contextId);
+            taskLocks = new HashSet<>();
+        }
+    }
 }

@@ -22,6 +22,12 @@ public interface TasksLockService {
     String releaseLock(String taskName);
 
     /**
+     * Release locks for all tasks
+     * @return contextId a tracing identifier provided by the consumer
+     */
+    String releaseLocks();
+
+    /**
      * Acquire lock with embedded impl.
      * @param taskName unique task identifier
      * @param hostName hostname of application/container acquiring lock
