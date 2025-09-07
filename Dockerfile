@@ -8,6 +8,12 @@ WORKDIR /project
 RUN gradle clean bootJar
 
 FROM openjdk:17-jdk-slim-bullseye
+
+# Install curl
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/* \
+
 ARG JAR_FILE=/project/build/libs/*.jar
 COPY --from=builder ${JAR_FILE} ./application.jar
 ENV SPRING_PROFILES_ACTIVE=tasks-lock-api
