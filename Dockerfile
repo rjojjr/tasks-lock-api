@@ -9,10 +9,10 @@ RUN gradle clean bootJar
 
 FROM openjdk:17-jdk-slim-bullseye
 
-# Install curl
+# Install curl for healthcheck
 RUN apt-get update && \
     apt-get install -y --no-install-recommends curl && \
-    rm -rf /var/lib/apt/lists/* \
+    rm -rf /var/lib/apt/lists/*
 
 ARG JAR_FILE=/project/build/libs/*.jar
 COPY --from=builder ${JAR_FILE} ./application.jar
