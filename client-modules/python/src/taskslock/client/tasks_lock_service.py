@@ -4,6 +4,7 @@ import json
 from models.task_lock import TaskLock
 from logging import getLogger
 import signal
+import threading
 
 version = '1.0.2'
 
@@ -63,9 +64,13 @@ class TasksLockService:
             lock.release()
 
     def _set_sigterm_handler(self):
-        original = signal.getsignal(signal.SIGTERM)
-        def sig(code, frame):
-            self.logger.warning(f"received signal {str(signal.Signals(code).name)}")
-            self.release_all_locks()
-            original(code, frame)
-        signal.signal(signal.SIGTERM, sig)
+        # Only set signal handler if we're in the main thread
+        if threading.current_thread() == threading.main_thread():
+            original = signal.getsignal(signal.SIGTERM)
+            def sig(code, frame):
+                self.logger.warning(f"received signal {str(signal.Signals(code).name)}")
+                self.release_all_locks()
+                original(code, frame)
+            signal.signal(signal.SIGTERM, sig)
+        else:
+            self.logger.debug("Skipping signal handler setup in non-main thread")
