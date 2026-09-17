@@ -1,4 +1,4 @@
-package rjojjr.com.github.taskslocks;
+package rjojjr.com.github.taskslock;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

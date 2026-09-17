@@ -29,14 +29,23 @@ public class TasksLocksApiClientService extends DestroyableTasksLockService {
 
     @Override
     public TaskLock acquireLock(String taskName, String contextId, boolean waitForLock) {
+        return acquireLock(taskName, contextId, waitForLock, null);
+    }
+
+    @Override
+    public TaskLock acquireLock(String taskName, String contextId, boolean waitForLock, Long timeoutMinutes) {
         try {
-            log.debug("attempting to acquire lock for task {}, waiting for lock: {} contextId: {}", taskName, waitForLock, contextId);
-            var response = restTemplate.getForObject(String.format("%s/tasks-lock/api/v1/acquire?taskName=%s&contextId=%s&waitForLock=%s", apiProtoAndHost, taskName, contextId, waitForLock ? "true" : "false"), TasksLockApiResponse.class);
+            log.debug("attempting to acquire lock for task {}, waiting for lock: {} timeout: {} contextId: {}", taskName, waitForLock, timeoutMinutes, contextId);
+            var url = String.format("%s/tasks-lock/api/v1/acquire?taskName=%s&contextId=%s&waitForLock=%s", apiProtoAndHost, taskName, contextId, waitForLock ? "true" : "false");
+            if (timeoutMinutes != null) {
+                url += "&timeoutMinutes=" + timeoutMinutes;
+            }
+            var response = restTemplate.getForObject(url, TasksLockApiResponse.class);
             if(!response.getIsLockAcquired()){
                 log.debug("did not acquire lock for task {} contextId: {}", taskName, contextId);
-                return new TaskLock(taskName, contextId, false, null, () -> {});
+                return new TaskLock(taskName, contextId, false, null, response.getTimeoutMinutes(), () -> {});
             }
-            var taskLock = new TaskLock(taskName, contextId, true, response.getLockedAt(), () -> releaseLock(taskName));
+            var taskLock = new TaskLock(taskName, contextId, true, response.getLockedAt(), response.getTimeoutMinutes(), () -> releaseLock(taskName));
             cacheLock(taskLock);
             log.debug("acquired lock for task {} contextId: {}", taskName, contextId);
             return taskLock;
@@ -83,7 +92,12 @@ public class TasksLocksApiClientService extends DestroyableTasksLockService {
 
     @Override
     public TaskLock acquireLock(String taskName, String hostName, String contextId, boolean waitForLock){
-        return acquireLock(taskName, contextId, waitForLock);
+        return acquireLock(taskName, contextId, waitForLock, null);
+    }
+
+    @Override
+    public TaskLock acquireLock(String taskName, String hostName, String contextId, boolean waitForLock, Long timeoutMinutes){
+        return acquireLock(taskName, contextId, waitForLock, timeoutMinutes);
     }
 
 

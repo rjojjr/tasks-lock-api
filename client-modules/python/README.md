@@ -44,4 +44,13 @@ def some_sync_func_that_waits():
     ...
     task_lock.release()
 
+
+def some_sync_func_with_a_short_lived_lock():
+    # The optional timeout_minutes argument is the lock timeout in minutes(the API default of 60 is used when omitted).
+    # If this lock is still held after 5 minutes, it is considered expired and another requester may acquire it.
+    task_lock = tasks_lock_service.acquire_lock('some-task-name', 'some-context-id', True, timeout_minutes=5)
+    # Do something and release lock
+    ...
+    task_lock.release()
+
 ```

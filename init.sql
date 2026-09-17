@@ -3,5 +3,6 @@ create table task_locks (
     is_locked BIT NOT NULL,
     is_locked_by_host VARCHAR(256),
     context_id VARCHAR(256),
-    locked_at DATETIME
+    locked_at DATETIME,
+    timeout_minutes BIGINT
 );

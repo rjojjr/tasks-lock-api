@@ -15,4 +15,5 @@ public class TasksLockApiResponse {
     private String message;
     private Boolean isLockAcquired;
     private Date lockedAt;
+    private Long timeoutMinutes;
 }

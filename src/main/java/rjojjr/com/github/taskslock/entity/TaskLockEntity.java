@@ -30,4 +30,10 @@ public class TaskLockEntity {
     private String contextId;
 
     private Date lockedAt;
+
+    /**
+     * Number of minutes after {@code lockedAt} at which the lock is considered expired.
+     * {@code null} means the lock never expires (legacy rows written before this column existed).
+     */
+    private Long timeoutMinutes;
 }

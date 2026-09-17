@@ -8,13 +8,24 @@ import java.util.List;
 public interface TasksLockService {
 
     /**
-     * Acquire lock for task
+     * Acquire lock for task using the default lock timeout
      * @param taskName unique task identifier
      * @param contextId a tracing identifier provided by the consumer
      * @param waitForLock block until lock is acquired
      * @return TaskLock object
      */
     TaskLock acquireLock(String taskName, String contextId, boolean waitForLock);
+
+    /**
+     * Acquire lock for task
+     * @param taskName unique task identifier
+     * @param contextId a tracing identifier provided by the consumer
+     * @param waitForLock block until lock is acquired
+     * @param timeoutMinutes number of minutes the lock stays valid before it is considered expired
+     *                       and may be acquired by another requester, or null to use the default(60 minutes)
+     * @return TaskLock object
+     */
+    TaskLock acquireLock(String taskName, String contextId, boolean waitForLock, Long timeoutMinutes);
 
     /**
      * Release lock for task
@@ -30,7 +41,7 @@ public interface TasksLockService {
     String releaseLocks();
 
     /**
-     * Acquire lock with embedded impl.
+     * Acquire lock with embedded impl. using the default lock timeout
      * @param taskName unique task identifier
      * @param hostName hostname of application/container acquiring lock
      * @param contextId a tracing identifier provided by the consumer
@@ -38,6 +49,18 @@ public interface TasksLockService {
      * @return TaskLock object
      */
     TaskLock acquireLock(String taskName, String hostName, String contextId, boolean waitForLock);
+
+    /**
+     * Acquire lock with embedded impl.
+     * @param taskName unique task identifier
+     * @param hostName hostname of application/container acquiring lock
+     * @param contextId a tracing identifier provided by the consumer
+     * @param waitForLock block until lock is acquired
+     * @param timeoutMinutes number of minutes the lock stays valid before it is considered expired
+     *                       and may be acquired by another requester, or null to use the default(60 minutes)
+     * @return TaskLock object
+     */
+    TaskLock acquireLock(String taskName, String hostName, String contextId, boolean waitForLock, Long timeoutMinutes);
 
     /**
      * List locks for all tasks

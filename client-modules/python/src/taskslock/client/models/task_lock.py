@@ -6,4 +6,6 @@ class TaskLock:
         self.task_name = api_response['taskName']
         self.context_id = api_response['contextId']
         self.is_locked = api_response['isLockAcquired']
+        # Minutes after acquisition at which the lock expires and may be acquired by another requester.
+        self.timeout_minutes = api_response.get('timeoutMinutes')
         self.release = release

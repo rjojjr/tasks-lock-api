@@ -28,16 +28,16 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
         if (ex instanceof ReleaseLockFailureException exception) {
             handleExceptionInternal(ex, exception.getMessage(),
                     new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
-            return new TasksLockApiResponse(exception.getTaskName(), exception.getContextId(), ex.getMessage(), false, null);
+            return new TasksLockApiResponse(exception.getTaskName(), exception.getContextId(), ex.getMessage(), false, null, null);
         }
         if (ex instanceof AcquireLockFailureException exception) {
             handleExceptionInternal(ex, exception.getMessage(),
                     new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
-            return new TasksLockApiResponse(exception.getTaskName(), exception.getContextId(), ex.getMessage(), false, null);
+            return new TasksLockApiResponse(exception.getTaskName(), exception.getContextId(), ex.getMessage(), false, null, null);
         }
         handleExceptionInternal(ex, ex.getMessage(),
                 new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
-        return new TasksLockApiResponse(null, null, ex.getMessage(), false, null);
+        return new TasksLockApiResponse(null, null, ex.getMessage(), false, null, null);
     }
 
     @ExceptionHandler(value
@@ -47,6 +47,6 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
         log.warn("received error {} for {} returning {}", ex.getMessage(), request.getContextPath(), 500);
         handleExceptionInternal(ex, ex.getMessage(),
                 new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
-        return new TasksLockApiResponse(null, null, ex.getMessage(), false, null);
+        return new TasksLockApiResponse(null, null, ex.getMessage(), false, null, null);
     }
 }

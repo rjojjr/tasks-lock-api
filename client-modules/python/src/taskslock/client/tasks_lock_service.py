@@ -25,12 +25,19 @@ class TasksLockService:
         self._locks = []
         self._set_sigterm_handler()
 
-    def acquire_lock(self, task_name: str, context_id: str, wait_for_lock: bool) -> TaskLock:
-        """Acquires lock from the TasksLockAPI."""
+    def acquire_lock(self, task_name: str, context_id: str, wait_for_lock: bool, timeout_minutes: int | None = None) -> TaskLock:
+        """Acquires lock from the TasksLockAPI.
+
+        :param timeout_minutes: minutes the lock stays valid before it is considered expired and may be
+            acquired by another requester. Defaults to the API's configured default(60 minutes) when None.
+        """
 
         task_lock = TaskLock({'taskName': task_name, 'contextId': context_id, 'isLockAcquired': False}, lambda : print(f'Cannot release lock for {task_name}, lock not acquired contextId: {context_id}'))
         self.logger.debug(f"acquiring lock for task {task_name} contextId: {context_id}")
-        response = requests.get(f'{self._url}/tasks-lock/api/v1/acquire?taskName={task_name}&contextId={context_id}&waitForLock={"true" if wait_for_lock else "false"}')
+        url = f'{self._url}/tasks-lock/api/v1/acquire?taskName={task_name}&contextId={context_id}&waitForLock={"true" if wait_for_lock else "false"}'
+        if timeout_minutes is not None:
+            url += f'&timeoutMinutes={timeout_minutes}'
+        response = requests.get(url)
         if response.status_code < 300:
             body = json.loads(response.content)
             task_lock = TaskLock(body, lambda: self.release_lock(task_name))

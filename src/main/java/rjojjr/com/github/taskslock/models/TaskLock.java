@@ -14,5 +14,11 @@ public class TaskLock {
     private String contextId;
     private Boolean isLocked;
     private Date lockedAt;
+    /**
+     * Number of minutes after {@link #lockedAt} at which the lock is considered
+     * expired and may be acquired by another requester. {@code null} means the
+     * lock never expires.
+     */
+    private Long timeoutMinutes;
     private Runnable release;
 }

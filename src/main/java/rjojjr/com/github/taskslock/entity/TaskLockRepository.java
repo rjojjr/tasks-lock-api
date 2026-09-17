@@ -20,9 +20,9 @@ public class TaskLockRepository {
     private final TaskLockEntityRepository taskLockEntityRepository;
 
     @Transactional
-    public TaskLock getTaskLock(String taskName, String hostName, String contextId, Consumer<String> releaseLock, Consumer<TaskLock> cacheLock) {
+    public TaskLock getTaskLock(String taskName, String hostName, String contextId, Long timeoutMinutes, Consumer<String> releaseLock, Consumer<TaskLock> cacheLock) {
         try {
-            var taskLock = taskLockEntityRepository.tryToAcquireLock(taskName, hostName, contextId, releaseLock, cacheLock);
+            var taskLock = taskLockEntityRepository.tryToAcquireLock(taskName, hostName, contextId, timeoutMinutes, releaseLock, cacheLock);
             if (taskLock.getIsLocked()) {
                 log.debug("acquired lock for task {} contextId: {}", taskName, contextId);
                 return taskLock;

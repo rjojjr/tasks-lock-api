@@ -74,6 +74,21 @@ of your target Springboot app, and set the `tasks-lock.client.enabled` env. var.
 property to `true`. You must also set the `tasks-lock.client.api-host` property
 to the protocol, hostname and port of the target API Mode module instance(`http://localhost:8080`).
 
+## Lock Timeout
+
+Every lock has an optional timeout, expressed in minutes. Once a lock has been
+held for longer than its timeout it is treated as expired, and the next requester
+for that task is allowed to acquire it. This protects against locks that are never
+released because the holder crashed or was killed before it could release them.
+
+The timeout can be passed per lock when acquiring it(see the examples below). When
+no timeout is passed, the default of `60` minutes is used. The default can be changed
+on the module instance that owns the database(Embedded Mode or API Mode) with the
+`tasks-lock.default-timeout.minutes` env. var./configuration property.
+
+**NOTE** - A lock holder is not notified when its lock expires, so pick a timeout
+comfortably longer than the longest expected run time of the task.
+
 ## Consuming Tasks Locks
 
 ### Java/Springboot
@@ -124,6 +139,18 @@ public class SomeComponent {
         // No need to check `isLocked` because this method will not finish unless it either
         // acquires the lock or throws a RuntimeException for some unexpected reason
         
+        // Lock acquired, do something and release lock
+        ...
+        // Release lock
+        taskLock.getRelease().run();
+    }
+
+    // Custom lock timeout
+    public void doSomethingWithAShortLivedLock(){
+        // The optional last argument is the lock timeout in minutes(defaults to 60 when omitted or null).
+        // If this lock is still held after 5 minutes, it is considered expired and another
+        // requester may acquire it.
+        var taskLock = this.tasksLockService.acquireLock("someUniqueTaskName", "someContextId", true, 5L);
         // Lock acquired, do something and release lock
         ...
         // Release lock

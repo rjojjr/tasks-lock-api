@@ -20,6 +20,9 @@ public class EmbeddedTasksLockService extends DestroyableTasksLockService {
     @Value("${tasks-lock.retry-interval.ms:50}")
     private long retryInterval;
 
+    @Value("${tasks-lock.default-timeout.minutes:60}")
+    private long defaultTimeoutMinutes;
+
     private final TaskLockRepository taskLockRepository;
 
     @Autowired
@@ -29,25 +32,36 @@ public class EmbeddedTasksLockService extends DestroyableTasksLockService {
 
     @Override
     public TaskLock acquireLock(String taskName, String contextId, boolean waitForLock) {
-        return acquireLock(taskName, HostUtil.getRemoteHost(), contextId, waitForLock);
+        return acquireLock(taskName, contextId, waitForLock, null);
+    }
+
+    @Override
+    public TaskLock acquireLock(String taskName, String contextId, boolean waitForLock, Long timeoutMinutes) {
+        return acquireLock(taskName, HostUtil.getRemoteHost(), contextId, waitForLock, timeoutMinutes);
     }
 
     @Override
     public TaskLock acquireLock(String taskName, String hostName, String contextId, boolean waitForLock) {
+        return acquireLock(taskName, hostName, contextId, waitForLock, null);
+    }
+
+    @Override
+    public TaskLock acquireLock(String taskName, String hostName, String contextId, boolean waitForLock, Long timeoutMinutes) {
+        var effectiveTimeout = timeoutMinutes != null ? timeoutMinutes : defaultTimeoutMinutes;
         try {
-            log.debug("attempting to acquire lock for task {}, waiting for lock: {} contextId: {}", taskName, waitForLock, contextId);
+            log.debug("attempting to acquire lock for task {}, waiting for lock: {} timeout: {}m contextId: {}", taskName, waitForLock, effectiveTimeout, contextId);
             synchronized (dbLock) {
-                var taskLock = taskLockRepository.getTaskLock(taskName, hostName, contextId, this::releaseLock, this::cacheLock);
+                var taskLock = taskLockRepository.getTaskLock(taskName, hostName, contextId, effectiveTimeout, this::releaseLock, this::cacheLock);
                 if (taskLock != null) return taskLock;
             }
 
             if (waitForLock) {
                 log.debug("task lock not acquired for task {}, retrying in {}ms contextId: {}", taskName, retryInterval, contextId);
                 ThreadUtil.sleep(retryInterval);
-                return acquireLock(taskName, hostName, contextId, true);
+                return acquireLock(taskName, hostName, contextId, true, effectiveTimeout);
             }
             log.debug("did not acquire lock for task {} contextId: {}", taskName, contextId);
-            return new TaskLock(taskName, contextId, false, null, () -> {});
+            return new TaskLock(taskName, contextId, false, null, effectiveTimeout, () -> {});
         } catch (Exception e) {
             log.error("error acquiring lock for task {}: {} contextId: {}", taskName, e.getMessage(), contextId);
             throw new AcquireLockFailureException(taskName, contextId, e);
