@@ -63,6 +63,23 @@ public class TasksLocksApiClientService extends DestroyableTasksLockService {
             throw new ReleaseLockFailureException(taskName, null, e);
         }
     }
+    @Override
+    public String releaseLocks() {
+        try {
+
+            log.debug("attempting to release locks for all tasks");
+            var response = restTemplate.getForObject(String.format("%s/tasks-lock/api/v1/release/all", apiProtoAndHost), TasksLockApiResponse.class);
+
+            assert response != null;
+            var contextId = response.getContextId();
+            removeLocks(contextId);
+            log.debug("released locks for all tasks, contextId: {}", contextId);
+            return contextId;
+        } catch (Exception e) {
+            log.error("error releasing locks from TasksLock API: {}", e.getMessage());
+            throw new ReleaseLockFailureException("all", null, e);
+        }
+    }
 
     @Override
     public TaskLock acquireLock(String taskName, String hostName, String contextId, boolean waitForLock){

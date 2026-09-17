@@ -70,4 +70,21 @@ public class EmbeddedTasksLockService extends DestroyableTasksLockService {
             throw new ReleaseLockFailureException(taskName, null, e);
         }
     }
+
+    @Override
+    public String releaseLocks() {
+        log.debug("attempting to release locks for all tasks");
+        try {
+            String contextId;
+            synchronized (dbLock) {
+                contextId = taskLockRepository.releaseLocks();
+            }
+            removeLocks(contextId);
+            log.debug("released locks for all tasks, contextId: {}", contextId);
+            return contextId;
+        } catch (Exception e) {
+            log.error("error releasing locks for all tasks: {}", e.getMessage());
+            throw new ReleaseLockFailureException("all", null, e);
+        }
+    }
 }

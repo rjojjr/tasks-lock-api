@@ -37,4 +37,9 @@ public class TaskLockRepository {
     public String releaseLock(String taskName) {
         return taskLockEntityRepository.releaseLock(taskName);
     }
+
+    @Transactional
+    public String releaseLocks() {
+        return taskLockEntityRepository.releaseLocks();
+    }
 }
