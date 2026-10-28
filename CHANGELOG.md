@@ -7,6 +7,17 @@ The Java/Spring Boot module (Embedded Mode, API Mode and API Client Mode) is ver
 with `vX.Y.Z` tags. The Python client in `client-modules/python` is versioned
 independently with `Python-Client-vX.Y.Z` tags. Both lines are listed below, newest first.
 
+## [2.0.0] - Unreleased
+
+Java module release `2.0.0`. The Python client is unchanged.
+
+### Changed
+- Upgrade to Spring Boot 4.1.2 (Spring Framework 7, Hibernate 7). Embedded Mode and API
+  Client Mode consumers must be on Spring Boot 4.
+- Import `@EntityScan` from its Spring Boot 4 package, so the embedded auto-configuration
+  loads under Spring Boot 4.
+- Upgrade Gradle wrapper to 9.2.1.
+
 ## [1.2.0] - 2026-09-17
 
 Java module release `1.2.0`. The Python client changes in this release are versioned as
