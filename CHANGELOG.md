@@ -7,7 +7,7 @@ The Java/Spring Boot module (Embedded Mode, API Mode and API Client Mode) is ver
 with `vX.Y.Z` tags. The Python client in `client-modules/python` is versioned
 independently with `Python-Client-vX.Y.Z` tags. Both lines are listed below, newest first.
 
-## [2.0.0] - Unreleased
+## [2.0.0] - 2026-10-28
 
 Java module release `2.0.0`. The Python client is unchanged.
 
