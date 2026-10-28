@@ -2,7 +2,7 @@
 # Gradle Wrapper, this gradle image(instead of 'eclipse-temurin:17-jdk-jammy')
 # is actually faster since it doesn't have
 # to download this gradle distribution every time you build it.
-FROM gradle:7.6.4-jdk17 AS builder
+FROM gradle:9.2.1-jdk17 AS builder
 COPY . /project
 WORKDIR /project
 RUN gradle clean bootJar
